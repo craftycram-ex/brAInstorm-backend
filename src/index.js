@@ -17,7 +17,7 @@ const URL = 'https://api.openai.com/v1/engines/davinci/completions';
 const filterURL = 'https://api.openai.com/v1/engines/content-filter-alpha-c4/completions';
 const headers = {
   'Content-Type': 'application/json',
-  Authorization: `Bearer ${API_KEY}`,
+  Authorization: `Bearer ${process.env.API_KEY}`,
 };
 
 if (!process.env.API_KEY || !process.env.USER_LIMIT || !process.env.TOKEN_LIMIT) return console.error('Please set all the required env vars: API_KEY USER_LIMIT TOKEN_LIMIT');
