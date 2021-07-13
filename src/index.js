@@ -8,6 +8,7 @@ const fs = require('fs');
 const sha512 = require('js-sha512');
 const axios = require('axios');
 const {encode, decode} = require('gpt-3-encoder');
+const schedule = require('node-schedule');
 
 const logPath = path.join(__dirname, './iplog.json');
 const reqCounter = path.join(__dirname, './reqCount.txt');
@@ -20,7 +21,7 @@ const headers = {
   Authorization: `Bearer ${process.env.API_KEY}`,
 };
 
-if (!process.env.API_KEY || !process.env.AUTH_KEY || !process.env.USER_LIMIT || !process.env.TOKEN_LIMIT) return console.error('Please set all the required env vars: API_KEY AUTH_KEY USER_LIMIT TOKEN_LIMIT');
+if (!process.env.API_KEY || !process.env.AUTH_KEY || !process.env.ADMIN_KEY || !process.env.USER_LIMIT || !process.env.TOKEN_LIMIT) return console.error('Please set all the required env vars: API_KEY AUTH_KEY ADMIN_KEY USER_LIMIT TOKEN_LIMIT');
 
 try {
   fs.readFileSync(logPath, 'utf-8');
@@ -34,6 +35,11 @@ try {
   console.log('counter file error. creating');
   fs.writeFileSync(reqCounter, '0');
 }
+
+const job = schedule.scheduleJob('0 * * * *', () => {
+  fs.writeFileSync(reqCounter, '0');
+  fs.writeFileSync(logPath, '{}');
+});
 
 async function checkLimit(ip) {
   const reqCountBuffer = await fs.readFileSync(reqCounter, 'utf-8');
@@ -88,6 +94,16 @@ app.post('/filterData', (req, res) => {
       console.log(err);
       res.status(500).send('internal server error')
     });
+});
+
+app.post('/resetIP', (req, res) => {
+  if (req.headers.authorization !== process.env.ADMIN_KEY) return res.status(401).send();
+  const ipHash = await sha512(req.socket.remoteAddress);
+  const ipLog = await fs.readFileSync(logPath, 'utf-8');
+  const knownIps = await JSON.parse(ipLog);
+  knownIps[ipHash] = 0;
+  await fs.writeFileSync(logPath, JSON.stringify(knownIps));
+  await res.status(200).send(`resetted counter for ${req.socket.remoteAddress}`);
 });
 
 // startet Server
