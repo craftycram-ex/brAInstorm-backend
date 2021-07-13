@@ -80,10 +80,12 @@ app.post('/solveProblem', async (req, res) => {
 });
 
 app.post('/filterData', (req, res) => {
-  console.log(req.socket.remoteAddress);
-  axios.post(filterURL, req.body)
+  axios.post(filterURL, req.body, { headers })
     .then((r) => res.status(200).send(r.data))
-    .catch(() => res.status(500).send('internal server error'));
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send('internal server error')
+    });
 });
 
 // startet Server
