@@ -71,9 +71,9 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/solveProblem', async (req, res) => {
-  console.log(req.header('x-forwarded-for').split(',')[0]);
+  console.log(req.header('x-forwarded-for').split(','));
   if (req.headers.authorization !== process.env.AUTH_KEY) return res.status(401).send();
-  const count = await checkLimit(req.header('x-forwarded-for').split(','));
+  const count = await checkLimit(req.header('x-forwarded-for').split(',')[0]);
   console.log(count);
   if (count === -1) return res.status(429).send('max amount of requests reached');
   if (count > process.env.USER_LIMIT) return res.status(429).send('you reached your limit');
