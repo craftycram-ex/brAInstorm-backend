@@ -5,7 +5,6 @@ const cors = require('cors');
 const http = require('http');
 const fs = require('fs');
 
-
 const logPath = path.join(__dirname, '../res/iplog.txt');
 
 // Erstellt Express Anwendung
