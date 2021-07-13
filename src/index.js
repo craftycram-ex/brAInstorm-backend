@@ -70,10 +70,10 @@ app.post('/solveProblem', async (req, res) => {
   if (count === -1) return res.status(429).send('max amount of requests reached');
   if (count > process.env.USER_LIMIT) return res.status(429).send('you reached your limit');
   axios.post(URL, req.body, { headers })
-    .then((r) => {
+    .then(async (r) => {
       const encoded = encode(r.data.choices[0].text)
       await addCounter(encoded.length);
-      res.status(200).send(r.data);
+      await res.status(200).send(r.data);
     })
     .catch(() => res.status(500).send('internal server error'));
   return true;
