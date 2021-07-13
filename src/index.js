@@ -20,7 +20,7 @@ const headers = {
   Authorization: `Bearer ${process.env.API_KEY}`,
 };
 
-if (!process.env.API_KEY || !process.env.USER_LIMIT || !process.env.TOKEN_LIMIT) return console.error('Please set all the required env vars: API_KEY USER_LIMIT TOKEN_LIMIT');
+if (!process.env.API_KEY || !process.env.AUTH_KEY || !process.env.USER_LIMIT || !process.env.TOKEN_LIMIT) return console.error('Please set all the required env vars: API_KEY AUTH_KEY USER_LIMIT TOKEN_LIMIT');
 
 try {
   fs.readFileSync(logPath, 'utf-8');
@@ -65,6 +65,7 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/solveProblem', async (req, res) => {
+  if (req.headers.authorization !== process.env.AUTH_KEY) return res.status(401).send();
   const count = await checkLimit(req.socket.remoteAddress);
   console.log(count);
   if (count === -1) return res.status(429).send('max amount of requests reached');
@@ -80,6 +81,7 @@ app.post('/solveProblem', async (req, res) => {
 });
 
 app.post('/filterData', (req, res) => {
+  if (req.headers.authorization !== process.env.AUTH_KEY) return res.status(401).send();
   axios.post(filterURL, req.body, { headers })
     .then((r) => res.status(200).send(r.data))
     .catch((err) => {
