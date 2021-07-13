@@ -9,8 +9,8 @@ const sha512 = require('js-sha512');
 const axios = require('axios');
 const {encode, decode} = require('gpt-3-encoder');
 
-const logPath = path.join(__dirname, '../res/iplog.json');
-const reqCounter = path.join(__dirname, '../res/reqCount.txt');
+const logPath = path.join(__dirname, './iplog.json');
+const reqCounter = path.join(__dirname, './reqCount.txt');
 
 const API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 const URL = 'https://api.openai.com/v1/engines/davinci/completions';
