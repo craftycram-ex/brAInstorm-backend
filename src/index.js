@@ -64,19 +64,17 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const lorem = 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'
-
 app.post('/solveProblem', async (req, res) => {
   const count = await checkLimit(req.socket.remoteAddress);
   console.log(count);
   if (count === -1) return res.status(429).send('max amount of requests reached');
   if (count > process.env.USER_LIMIT) return res.status(429).send('you reached your limit');
-  const encoded = encode(lorem)
-  console.log(encoded.length);
-  await addCounter(encoded.length);
-  return res.status(200).send();
   axios.post(URL, req.body, { headers })
-    .then((r) => res.status(200).send(r.data))
+    .then((r) => {
+      const encoded = encode(r.data.choices[0].text)
+      await addCounter(encoded.length);
+      res.status(200).send(r.data);
+    })
     .catch(() => res.status(500).send('internal server error'));
   return true;
 });
