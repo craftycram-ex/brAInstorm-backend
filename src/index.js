@@ -96,7 +96,7 @@ app.post('/filterData', (req, res) => {
     });
 });
 
-app.post('/resetIP', (req, res) => {
+app.post('/resetIP', async (req, res) => {
   if (req.headers.authorization !== process.env.ADMIN_KEY) return res.status(401).send();
   const ipHash = await sha512(req.socket.remoteAddress);
   const ipLog = await fs.readFileSync(logPath, 'utf-8');
