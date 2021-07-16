@@ -71,9 +71,6 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/solveProblem', async (req, res) => {
-
-  return res.status(429).send('currently disabled');
-
   if (req.headers.authorization !== process.env.AUTH_KEY) return res.status(401).send();
   const count = await checkLimit(req.header('x-forwarded-for').split(',')[0]);
   console.log(count);
