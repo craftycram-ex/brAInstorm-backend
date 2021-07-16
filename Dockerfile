@@ -11,6 +11,6 @@ RUN npm install
 # Bundle app source
 COPY . .
 # Network / reverse proxy config
-LABEL traefik.http.routers.brainstormbe.rule="Host(`brainstormbe.ds.ava.hfg.design`)"
+LABEL traefik.http.routers.brainstormbeopenai.rule="Host(`brainstormbeopenai.ds.ava.hfg.design`)"
 EXPOSE 3000
 CMD [ "node", "src/index.js" ]
