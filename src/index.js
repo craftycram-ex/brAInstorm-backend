@@ -27,8 +27,6 @@ app.post('/solveProblem', async (req, res) => {
   if (req.headers.authorization !== process.env.AUTH_KEY) return res.status(401).send();
   axios.post(URL, req.body, { headers })
     .then(async (r) => {
-      const encoded = encode(r.data.choices[0].text)
-      await addCounter(encoded.length);
       await res.status(200).send(r.data);
     })
     .catch((err) => {
