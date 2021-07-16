@@ -31,7 +31,10 @@ app.post('/solveProblem', async (req, res) => {
       await addCounter(encoded.length);
       await res.status(200).send(r.data);
     })
-    .catch(() => res.status(500).send('internal server error'));
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send('internal server error')
+    });
   return true;
 });
 
