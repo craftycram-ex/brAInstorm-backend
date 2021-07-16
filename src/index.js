@@ -71,10 +71,7 @@ app.use(express.json());
 app.use(cors());
 
 app.post('/solveProblem', async (req, res) => {
-
-  return res.status(429).send('currently disabled');
-
-  /*if (req.headers.authorization !== process.env.AUTH_KEY) return res.status(401).send();
+  if (req.headers.authorization !== process.env.AUTH_KEY) return res.status(401).send();
   const count = await checkLimit(req.header('x-forwarded-for').split(',')[0]);
   console.log(count);
   if (count === -1) return res.status(429).send('max amount of brainstorms reached for this hour');
@@ -86,7 +83,7 @@ app.post('/solveProblem', async (req, res) => {
       await res.status(200).send(r.data);
     })
     .catch(() => res.status(500).send('internal server error'));
-  return true;*/
+  return true;
 });
 
 app.post('/filterData', (req, res) => {
