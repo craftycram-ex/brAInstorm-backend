@@ -12,6 +12,7 @@ const schedule = require('node-schedule');
 
 const logPath = path.join(__dirname, './iplog.json');
 const reqCounter = path.join(__dirname, './reqCount.txt');
+const questionsLog = path.join(__dirname, './questionsLog.txt');
 
 const API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
 const URL = 'https://api.openai.com/v1/engines/davinci/completions';
@@ -34,6 +35,12 @@ try {
 } catch (err) {
   console.log('counter file error. creating');
   fs.writeFileSync(reqCounter, '0');
+}
+try {
+  fs.readFileSync(questionsLog, 'utf-8');
+} catch (err) {
+  console.log('questions file error. creating');
+  fs.writeFileSync(questionsLog, '');
 }
 
 const job = schedule.scheduleJob('0 * * * *', () => {
@@ -78,6 +85,7 @@ app.post('/solveProblem', async (req, res) => {
   if (count > process.env.USER_LIMIT) return res.status(429).send('you reached your limit');
   axios.post(URL, req.body, { headers })
     .then(async (r) => {
+      fs.appendFileSync(questionsLog, `${Date.now()}: "${req.body.prompt}" => "${r.data.choices[0].text}"\n`);
       const encoded = encode(r.data.choices[0].text)
       await addCounter(encoded.length);
       await res.status(200).send(r.data);
@@ -104,6 +112,17 @@ app.post('/resetIP', async (req, res) => {
   knownIps[ipHash] = 0;
   await fs.writeFileSync(logPath, JSON.stringify(knownIps));
   await res.status(200).send(`resetted counter for ${req.header('x-forwarded-for').split(',')[0]}`);
+});
+
+app.post('/history', async (req, res) => {
+  if (req.headers.authorization !== process.env.ADMIN_KEY) return res.status(401).send();
+  const questions = await fs.readFileSync(questionsLog, 'utf-8');
+  await res.status(200).send(questions);
+});
+app.get('/history', async (req, res) => {
+  if (req.query.key !== process.env.ADMIN_KEY) return res.status(401).send();
+  const questions = await fs.readFileSync(questionsLog, 'utf-8');
+  await res.status(200).send(questions);
 });
 
 // startet Server
